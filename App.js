@@ -4,6 +4,7 @@ import MainScreen from './screens/mainscreen';
 import RegisterScreen from './screens/registerscreen';
 
 
+
 export default function App() {
   return (
     <View style={styles.screen}>
