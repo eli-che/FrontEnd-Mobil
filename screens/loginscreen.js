@@ -1,27 +1,39 @@
-import React, { useState } from 'react';
+import * as React from 'react';
+import { useState, Component } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 
-const registerScreen = props => {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [password2, setPassword2] = useState('');
-
-    function getUserFromApiAsync() {
-        return fetch('http://192.168.0.34:8080/api')
-          .then((response) => response.json())
-          .then((responseJson) => {
-              console.log(responseJson.user[1]['username'])
-            return responseJson.user;
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+class loginScreen extends React.Component {
+    
+    constructor(props) {
+        super(props);
+        this.state = {
+           username: null,
+           password: null,
+        };
+      }
+    
+      componentDidMount() {
+        {
+            return fetch('http://192.168.0.34:8080/dashboard')
+              .then((response) => response.json())
+              .then((responseJson) => {
+                  console.log(responseJson.user);
+                  if(responseJson.user != null){
+                    this.props.navigation.navigate('mainScreen')
+                  }
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+          }
       }
 
-
-      function postUserRegisterFromApiAsync() {
-        fetch('http://192.168.0.34:8080/register', {
+    postUserLoginFromApiAsync = () => {
+     //   const { username, password } = this.state
+     console.log(this.state);
+        var username = this.state.username;
+        var password = this.state.password;
+        fetch('http://192.168.0.34:8080/login', {
             method: 'POST',
              headers: {
                 Accept: 'application/json',
@@ -29,65 +41,51 @@ const registerScreen = props => {
             },
                 body: JSON.stringify({
                     username: username,
-                    email: email,
                     password: password,
-                    password2: password2,
             })
         })
         .then((response) => response.json())
         .then((responseJson) => {
+        console.log(responseJson.status);
+        if (responseJson.status == true){
+            this.props.navigation.navigate('mainScreen')
+        }
         alert(responseJson.msg);
     })
     }
 
+    render () {
     return (
         <ScrollView>
     <View style={styles.form}>
         <View style={styles.formControl}>
             <Text style={styles.label}>Username</Text>
             <TextInput 
-            onChangeText={text => setUsername(text)}
-            value={username}
-            returnKeyType="next"
-            style={styles.input}/>
-        </View>
-        <View style={styles.formControl}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-            onChangeText={text => setEmail(text)}
-            value={email} 
+            onChangeText={(username) => this.setState({username})}
+            value={this.state.username}
             returnKeyType="next"
             style={styles.input}/>
         </View>
         <View style={styles.formControl}>
             <Text style={styles.label}>Password</Text>
             <TextInput
-            onChangeText={text => setPassword(text)}
-            value={password} 
+            onChangeText={(password) => this.setState({password})}
+            value={this.state.password} 
             returnKeyType="next"
             secureTextEntry
             style={styles.input}/>
         </View>
         <View style={styles.formControl}>
-            <Text style={styles.label}>Confirm Password</Text>
-            <TextInput
-            onChangeText={text => setPassword2(text)}
-            value={password2} 
-            returnKeyType="go"
-            secureTextEntry
-            style={styles.input}/>
-        </View>
-        <View style={styles.formControl}>
             <TouchableOpacity 
-            onPress = {postUserRegisterFromApiAsync}
+            onPress = {this.postUserLoginFromApiAsync}
             style={styles.buttonContainer}>
-                <Text style={styles.buttonText}>REGISTER</Text>
+                <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
         </View>
     </View>
         </ScrollView>
-    )
-    
+    );
+    }  
 };
 
 const styles = StyleSheet.create({
@@ -119,4 +117,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default registerScreen;  
+export default loginScreen;  
